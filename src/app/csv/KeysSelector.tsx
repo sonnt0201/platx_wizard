@@ -8,13 +8,15 @@ export const KeysSelector = ({
     device,
     startTs,
     endTs,
-    onSelectedKeysChanged
+    onSelectedKeysChanged,
+    notiLoading
 }: {
 
     device: IDevice,
     startTs: number,
     endTs: number,
-    onSelectedKeysChanged?: (values: string[]) => void
+    onSelectedKeysChanged?: (values: string[]) => void,
+    notiLoading?: (loading: boolean) => void
 }) => {
 
     const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set<string>([]));
@@ -29,17 +31,18 @@ export const KeysSelector = ({
     },[selectedKeys])
 
     const updateAllKeysList = async () => {
+        notiLoading && notiLoading(true)
         const list = await DevicesManager.timeseriesKeys(device, startTs, endTs);
         if (!list.error) setAllKeys(list.keys);
 
-
+        notiLoading && notiLoading(false)
     }
 
     return <><FormGroup>
 
 
         <Stack direction={"row"}>
-            <FormControlLabel control={<Checkbox defaultChecked />} label="Label" />
+            {/* <FormControlLabel control={<Checkbox defaultChecked />} label="Label" /> */}
             {
                 allKeys.map((val, index) =>
                     <FormControlLabel

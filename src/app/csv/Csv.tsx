@@ -28,7 +28,10 @@ export const Csv = () => {
 
 
     const exportCsv = async () => {
+       
         if (device && startTime && endTime && selectedKeys) {
+            setLoading(true)
+
             const result = await DevicesManager.timeseriesValues(
                 device,
                 startTime?.valueOf(),
@@ -64,6 +67,8 @@ export const Csv = () => {
             // Performing a download with click 
             a.click()
 
+            setLoading(false);
+
         }
 
     }
@@ -75,7 +80,9 @@ export const Csv = () => {
         <Paper elevation={3} sx={{ padding: 1 }} key={"on-top-tool-box"} >
             <Stack direction="row" spacing={2}>
 
-                <DeviceSelector onDeviceSelected={(value) => setDevice(value)} />
+                <DeviceSelector onDeviceSelected={(value) => setDevice(value)} 
+                   notiLoading={(value) => setLoading(value)}
+                    />
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
 
                     <DateTimePicker label="Start time" onChange={(value) => {
@@ -105,9 +112,11 @@ export const Csv = () => {
                     // className="w-50%"
                     />
                 </Tooltip>
-
+                
+                {/* export button */}
                 <Button color="secondary" variant="contained" className="!my-1"
                     onClick={exportCsv}
+                    disabled={loading || (!selectedKeys) || (selectedKeys.length === 0)}
                 >Export CSV</Button>
 
             </Stack>
@@ -121,6 +130,8 @@ export const Csv = () => {
                 device={device}
                 startTs={startTime.valueOf()}
                 endTs={endTime.valueOf()}
-                onSelectedKeysChanged={(keys) => setSelectedKeys(keys)} />}
+                onSelectedKeysChanged={(keys) => setSelectedKeys(keys)} 
+                notiLoading={(val) => setLoading(val)}
+                />}
     </ThemeProvider>
 }

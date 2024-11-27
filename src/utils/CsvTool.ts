@@ -42,7 +42,13 @@ export class CsvTool {
 
         });
 
+       
+        // sort row headers
+        const rowHeadersArr = [...this._rowHeaders];
+        rowHeadersArr.sort();
+        this._rowHeaders = new Set(rowHeadersArr);
 
+        
 
 
     }
@@ -58,6 +64,8 @@ export class CsvTool {
             str += "," + header;
         })
         str += '\n'; // end line
+
+       
 
         // following line
         this._rowHeaders.forEach(row => {
@@ -110,7 +118,7 @@ export class CsvTool {
             // separate and map with all timepoints
             valAsArray.forEach((val, index) => {
                 const time = startTs + (index * this._timestep)
-                
+
                 if (!this._2dMap[time]) this._2dMap[time] = {};
 
                 this._2dMap[time][key] = val;
