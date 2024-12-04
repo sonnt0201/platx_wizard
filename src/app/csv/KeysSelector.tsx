@@ -31,11 +31,11 @@ export const KeysSelector = ({
     },[selectedKeys])
 
     const updateAllKeysList = async () => {
-        notiLoading && notiLoading(true)
+      if (notiLoading) notiLoading(true)
         const list = await DevicesManager.timeseriesKeys(device, startTs, endTs);
         if (!list.error) setAllKeys(list.keys);
 
-        notiLoading && notiLoading(false)
+        if (notiLoading)  notiLoading(false)
     }
 
     return <><FormGroup>

@@ -1,10 +1,10 @@
 'use client'
 
 import { ThemeProvider } from "@emotion/react"
-import { Alert, Button, createTheme, Paper, Stack, TextField, Typography } from "@mui/material"
+import { Alert, Button, createTheme, LinearProgress, Paper, Stack, TextField, Typography } from "@mui/material"
 import { themeConstant } from "../theme"
 import axios from "axios"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 import { UserConstants } from "@/constants"
 import { Auth } from "@/models/client"
@@ -15,8 +15,12 @@ export const LoginForm = () => {
     const [email, setEmail] = useState<string>();
     const [password, setPassword] = useState<string>();
     const [error, setError] = useState<Error>();
-
+    const [loading, setLoading] = useState<boolean>();
+  
     const login = async () => {
+
+        setLoading(true);
+
         if (email && password) {
 
             const result = await Auth.login(email, password);
@@ -33,10 +37,13 @@ export const LoginForm = () => {
             setError(new Error("Wrong input format."))
         }
 
+        setLoading(false)
+
     }
 
 
     return <ThemeProvider theme={createTheme(themeConstant)}>
+        {loading && <LinearProgress color="primary" />}
         {/* <Stack direction={"row"} spacing={2}> */}
         <Paper elevation={3} className="m-auto my-10 py-5 px-10 w-5/12 h-10/12 text-center" >
             <Stack direction={"column"} spacing={4} >
@@ -56,6 +63,9 @@ export const LoginForm = () => {
                         if (e.key === "Enter")
                             login();
                     }}
+
+                    disabled={loading}
+
                 />
 
                 <TextField
@@ -70,6 +80,8 @@ export const LoginForm = () => {
                         if (e.key === "Enter")
                             login();
                     }}
+
+                    disabled={loading}
                 />
 
 
@@ -77,7 +89,12 @@ export const LoginForm = () => {
                     {error.message}
                 </Alert>}
 
-                <Button variant="contained" size="large" color="secondary" onClick={login}>
+                <Button variant="contained" 
+                size="large" 
+                color="secondary" 
+                onClick={login}
+                disabled={loading}
+                >
 
                     LOGIN to platform
                 </Button>

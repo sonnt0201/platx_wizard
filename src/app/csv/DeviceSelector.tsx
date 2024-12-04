@@ -6,7 +6,7 @@ import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { useEffect, useState } from "react";
-import { Box, CircularProgress, Stack } from "@mui/material";
+import {  Stack } from "@mui/material";
 export const DeviceSelector = ({ onDeviceSelected, notiLoading }: {
     onDeviceSelected?: (value?: IDevice) => void,
     notiLoading?: (loading: boolean) => void
@@ -15,7 +15,7 @@ export const DeviceSelector = ({ onDeviceSelected, notiLoading }: {
 
     const [selectedDevice, setSelectedDevice] = useState<IDevice>();
     const [allDevices, setAllDevices] = useState<IDevice[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    
     useEffect(() => {
         updateAllDevices();
     }, [])

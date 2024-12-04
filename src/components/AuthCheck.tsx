@@ -4,20 +4,45 @@
 import { Auth, DevicesManager, User } from "@/models/client"
 import { useEffect } from "react"
 
-export const AuthCheck = () => {
+export const AuthCheck = ({
+    onStartImplicitLogin,
+    onFinishImplicitLogin
+}: {
+    onStartImplicitLogin?: () => void,
+    onFinishImplicitLogin?: () => void
+}) => {
 
     useEffect(() => {
-        if (!Auth.state.username) window.location.replace("/login");
+       
+        doImplicitLogin()
+        
 
         printDevices();
 
     },[])
 
-    const printUser = async () => {
-       const current = await User.current();
+    const doImplicitLogin = async() => {
 
-       console.log(current);
+        if (onStartImplicitLogin) onStartImplicitLogin();
+
+        if (!Auth.state.username
+            || (Auth.state.refreshToken && Auth.isExpired(Auth.state.refreshToken))
+        ) window.location.replace("/login");
+        
+        if (Auth.isExpired(Auth.state.token)) {
+            const result = await Auth.doRefreshToken();
+            if (result.error) {
+                window.location.replace("/login");
+            }
+        }
+
+      
+        
+        if (onFinishImplicitLogin) onFinishImplicitLogin();
+       
     }
+
+   
 
     const printDevices = async () => {
         const list = await DevicesManager.all();
@@ -25,7 +50,7 @@ export const AuthCheck = () => {
     }
 
     return <>
-    checking auth
+   
     </>
 
 }

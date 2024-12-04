@@ -14,7 +14,7 @@ export interface IUserInfo {
     lastName?: string ;
   
     name: string;
-    [index: string]: Object | string | undefined
+    [index: string]: object | number | string | undefined
 }
 
 interface IEntity {
