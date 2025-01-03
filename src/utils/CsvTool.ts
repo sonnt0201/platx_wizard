@@ -1,5 +1,7 @@
-import { ITimeSeriesRes, ITsValuePair } from "@/models/client/Devices";
+import { ITimeSeriesRes, ITsValuePair } from "@/models/client/DevicesManager";
 
+
+type NumberAsString = string
 
 /*
     Designed for thingsboard telemetry response format
@@ -7,11 +9,11 @@ import { ITimeSeriesRes, ITsValuePair } from "@/models/client/Devices";
 export class CsvTool {
 
     private _columnHeaders: Set<string> = new Set(); // as selected keys to export 
-    private _rowHeaders: Set<number> = new Set(); // as timepoints by milliseconds
+    private _rowHeaders: Set<NumberAsString> = new Set(); // as timepoints by milliseconds
     private _originData: ITimeSeriesRes = {};
     private _timestep: number = 0;
     private _2dMap: {
-        [rowAsTime: number]: {
+        [rowAsTime: NumberAsString]: {
             [columnAsKey: string]: number;
         }
     } = {};
@@ -42,13 +44,13 @@ export class CsvTool {
 
         });
 
-       
+
         // sort row headers
         const rowHeadersArr = [...this._rowHeaders];
         rowHeadersArr.sort();
         this._rowHeaders = new Set(rowHeadersArr);
 
-        
+
 
 
     }
@@ -65,7 +67,7 @@ export class CsvTool {
         })
         str += '\n'; // end line
 
-       
+
 
         // following line
         this._rowHeaders.forEach(row => {
@@ -77,7 +79,7 @@ export class CsvTool {
                 str += "," + this._2dMap[row][column];
             })
             // end a line
-            str += '\n'; 
+            str += '\n';
 
 
         })
@@ -106,7 +108,7 @@ export class CsvTool {
                     this._valid = false;
                 }
 
-            
+
             if (typeof pair.value === 'number') {
                 valAsArray = [pair.value]
             }
@@ -114,10 +116,14 @@ export class CsvTool {
 
             if (Array.isArray(pair.value)) valAsArray = pair.value;
 
-            
+
             // separate and map with all timepoints
             valAsArray.forEach((val, index) => {
-                const time = startTs + (index * this._timestep)
+                let time: NumberAsString
+
+                if (this._timestep !== 0)
+                    time = String(startTs + (index * this._timestep));// calculate actual time
+                else time = String(startTs) + `_${index < 10? '000': ''}${index}`
 
                 if (!this._2dMap[time]) this._2dMap[time] = {};
 

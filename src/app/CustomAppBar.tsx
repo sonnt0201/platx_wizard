@@ -17,10 +17,11 @@ import AdbIcon from '@mui/icons-material/Adb';
 import { createTheme, ThemeProvider } from '@mui/material';
 import { themeConstant } from './theme';
 import { Auth } from '@/models/client';
+// import Image from 'next/image';
 
-const pages = ['Thingsboard', 'TCP Gateway'];
+const pages = [{name: 'Thingsboard', path: "https://tbc7.hust-2slab.org/"}, {name: 'TCP Gateway', path: "/tcp-gateway"}];
 // const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
-const appName = "SERVICES"
+const appName = "xWIZARD"
 export function CustomAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);
@@ -49,15 +50,23 @@ export function CustomAppBar() {
       <AppBar position="static" sx={{ bgcolor: `primary` }} >
         <Container maxWidth="xl">
           <Toolbar disableGutters>
-            <AdbIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+          <img
+                   
+                  
+                    
+                    src={"/platformx-white.svg"}
+                    alt="csv-icon"
+                    width={50}
+                />
             <Typography
               variant="h6"
               noWrap
               component="a"
               href="/"
               sx={{
-                mr: 2,
-                display: { xs: 'none', md: 'flex' },
+                
+                display: { xs: 'none', md: 'flex'},
+                marginX: 2,
                 fontFamily: 'monospace',
                 fontWeight: 700,
                 letterSpacing: '.3rem',
@@ -96,8 +105,8 @@ export function CustomAppBar() {
                 sx={{ display: { xs: 'block', md: 'none' } }}
               >
                 {pages.map((page) => (
-                  <MenuItem key={page} onClick={handleCloseNavMenu}>
-                    <Typography sx={{ textAlign: 'center' }}>{page}</Typography>
+                  <MenuItem key={page.name} onClick={handleCloseNavMenu}>
+                    <Typography sx={{ textAlign: 'center' }}>{page.name}</Typography>
                   </MenuItem>
                 ))}
               </Menu>
@@ -126,11 +135,14 @@ export function CustomAppBar() {
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
               {pages.map((page) => (
                 <Button
-                  key={page}
-                  onClick={handleCloseNavMenu}
+                  key={page.name}
+                  onClick={() => {
+                    handleCloseNavMenu();
+                    window.location.assign(page.path)
+                  }}
                   sx={{ my: 2, color: 'white', display: 'block' }}
                 >
-                  {page}
+                  {page.name}
                 </Button>
               ))}
             </Box>

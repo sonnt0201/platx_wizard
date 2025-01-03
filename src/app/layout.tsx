@@ -3,8 +3,9 @@ import localFont from "next/font/local";
 import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 
 import "./globals.css";
-import { createTheme, ThemeProvider } from "@mui/material";
+
 import {  CustomAppBar } from "./CustomAppBar";
+import { CustomFooter } from "./CustomFooter";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -39,7 +40,7 @@ export default function RootLayout({
             <CustomAppBar />
             {children}
        
-
+            <CustomFooter /> {/* Add the footer here */}
         </AppRouterCacheProvider>
 
       </body>

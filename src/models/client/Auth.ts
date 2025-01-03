@@ -54,7 +54,7 @@ export interface ITokenInfo {
 
     sub: string; // Subject, typically the user email
     userId: string; // User ID
-    scopes: string[]; // Array of scopes/roles
+    scopes: ("TENANT_ADMIN"| "CUSTOMER_USER")[]; // Array of scopes/roles
     sessionId: string; // Session ID
     exp: number; // Expiration time (Unix timestamp in seconds)
     iss: string; // Issuer
@@ -70,7 +70,7 @@ class AuthClass implements IAuth {
 
     set state(value: { username: string, token: string, refreshToken: string }) {
 
-        if (!window) return;
+        if (typeof window === "undefined") return;
 
         localStorage.setItem(LocalKeyConstants.TOKEN, value.token);
         localStorage.setItem(LocalKeyConstants.USERNAME, value.username);
@@ -79,7 +79,7 @@ class AuthClass implements IAuth {
 
     get state() {
 
-        if (!window) return EMPTY_AUTH_STATE;
+        if (typeof window === "undefined") return EMPTY_AUTH_STATE;
 
         const username = localStorage.getItem(LocalKeyConstants.USERNAME);
         const refreshToken = localStorage.getItem(LocalKeyConstants.REFRESH_TOKEN);
@@ -232,7 +232,7 @@ class AuthClass implements IAuth {
         error?: AuthError,
         state?: IAuthState,
     }> {
-        if (!window) return { error: AuthError.RUN_ON_SERVERSIDE }
+        if (typeof window === "undefined") return { error: AuthError.RUN_ON_SERVERSIDE }
 
         const refreshToken = this.state.refreshToken
         if (!refreshToken || this.isExpired(refreshToken)) {
@@ -298,6 +298,94 @@ class AuthClass implements IAuth {
 
 
 }
+
+
+/**
+ * get thingsboard auth token, auto refresh token if needed.
+ * 
+ * @returns token as string 
+ */
+export async  function getTBToken (): Promise<string> {
+  
+    if (typeof window === "undefined") return "";
+
+    if (Auth.shouldDoLogin()) { // should do login
+
+        console.log("Logging in for you ...");
+
+
+            window.location.replace("/login")
+
+            
+
+            // check if error when login
+            return "";
+            
+
+        } else if (Auth.shouldDoRefreshToken()) { // if shouldnt login but refresh token
+
+            console.log("Refresh token for you...");
+
+            const ret = await Auth.doRefreshToken();
+
+
+            // in case error happens
+            if (ret.error ||  !ret.state) {
+                console.error("Cannot refresh token, may be because of the TB server.");
+
+               
+
+                return "";
+
+            }
+
+            console.log("Refresh token successfully")
+
+            return ret.state?.token
+            
+        } else {
+
+            return Auth.state?.token || ""
+
+        }
+    
+}
+
+export const postWithAuth = async (endpoint: string,
+    payload: object,
+    headers?: object
+) => axios.post(
+    UserConstants.THINGSBOARD_HOST + endpoint,
+    payload,
+
+    {
+        headers: {
+            "X-Authorization": `Bearer ${await getTBToken()}`,
+            ...headers
+        }
+    }
+)
+
+/**
+ * Built on top of axios
+ * 
+ * Send post request with Auth header to configured thingsboard server 
+ * @param endpoint : endpoint only etc: /api/v1/devices 
+ * @param headers 
+ * @returns Promise of response object
+ */
+export const getWithAuth = async (endpoint: string,
+    headers?: object
+) => axios.get(
+    UserConstants.THINGSBOARD_HOST + endpoint,
+    {
+        headers: {
+            "X-Authorization": `Bearer ${await getTBToken()}`,
+            ...headers
+        }
+    }
+)
+
 
 // singleton instance
 export const Auth = new AuthClass();

@@ -1,7 +1,7 @@
 'use client'
 
 
-import { Auth, DevicesManager, User } from "@/models/client"
+import { Auth, DevicesManager } from "@/models/client"
 import { useEffect } from "react"
 
 export const AuthCheck = ({

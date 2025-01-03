@@ -21,9 +21,15 @@ export function ActionAreaCard({ title, description, imageSrc, onAreaClick }: {
             <CardActionArea onClick={onAreaClick}>
                {imageSrc && <CardMedia
                     component="img"
-                    height="140"
+                  
+                    
                     image={imageSrc}
-                    alt="green iguana"
+                    alt="csv-icon"
+                    sx={{
+                        height: 200, // Reduced height
+                        objectFit: 'contain', // Adjust object-fit to contain the image
+                        marginY: 2
+                    }}
                 />}
                 <CardContent>
                     <Typography gutterBottom variant="h5" component="div">

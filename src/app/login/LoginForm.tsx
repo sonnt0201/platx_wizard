@@ -1,12 +1,12 @@
 'use client'
 
 import { ThemeProvider } from "@emotion/react"
-import { Alert, Button, createTheme, LinearProgress, Paper, Stack, TextField, Typography } from "@mui/material"
+import { Alert, Button, createTheme, LinearProgress, Paper, Stack, TextField, } from "@mui/material"
 import { themeConstant } from "../theme"
-import axios from "axios"
-import { useEffect, useState } from "react"
 
-import { UserConstants } from "@/constants"
+import { useState } from "react"
+
+
 import { Auth } from "@/models/client"
 
 
@@ -48,9 +48,9 @@ export const LoginForm = () => {
         <Paper elevation={3} className="m-auto my-10 py-5 px-10 w-5/12 h-10/12 text-center" >
             <Stack direction={"column"} spacing={4} >
                 <h1 className="font-extrabold text-3xl  text-violet-900" >
-                    IoT Platform
+                   IoT Platform x WIZARD
                 </h1>
-                <h1>Sign in with your Thingsboard Lab's server account</h1>
+                <h1>Sign in with your Thingsboard Lab&apos;s server account</h1>
                 <TextField
                     required
                     id="outlined-required"
@@ -91,7 +91,7 @@ export const LoginForm = () => {
 
                 <Button variant="contained" 
                 size="large" 
-                color="secondary" 
+                color="primary" 
                 onClick={login}
                 disabled={loading}
                 >
