@@ -34,3 +34,5 @@ chạy product
 ```shell
 npm start
 ```
+
+Mở giao diện tại địa chỉ `http://localhost:3000`
