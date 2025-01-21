@@ -1,4 +1,4 @@
-'use client'
+
 import { Suspense } from "react"
 import { DeviceScheduler } from "./DeviceScheduler"
 // import { useRouter } from 'next/router'
