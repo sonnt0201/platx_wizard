@@ -26,6 +26,14 @@ export interface ISchedule {
      */
     repeatTime: number;
 
+
+    /**
+        * - The number of times the schedule will repeat.
+        * - Each time the deadline passes, `repeatCount` decreases by 1.
+        * - If `repeatCount` is `-1`, the schedule repeats indefinitely.
+     */
+    repeatCount: number;
+
     id: string;
 
     /**
@@ -40,9 +48,10 @@ export interface ISchedule {
 export const SchedulesAttributeKey = "_schedules"
 
 export enum MillisecondsOption {
+    ONE_MIN = 1000 * 60,
     ONE_DAY = 1000 * 60 * 60 * 24,
     ONE_HOUR = 1000 * 60 * 60,
-    ONE_WEEK = 1000 * 60 * 60 * 24 * 7
+    ONE_WEEK = 1000 * 60 * 60 * 24 * 7,
 }
 
 export type ControlLabel = string;
@@ -90,5 +99,32 @@ export const SchedulerAPIsClient = {
        
     } ,
 
+    /**
+     * Post to create a custom schedule
+     */
+    postSchedule: async (deviceId: string, options: Partial<Omit<ISchedule, "id">>) => {
+        const url = UserConstants.DAEMON_HTTP_API_HOST + `/service/scheduler/custom/${deviceId}`
+
+        const res = (await axios.post(url, options))
+
+        console.log({
+            target: "SchedulerAPIsClient.postDailySchedule",
+            schedulesList: res.status
+        })
+    },
+
+    /**
+     * Delete a schedule
+     */
+    deleteSchedules: async (deviceId: string, scheduleIDs: string[]) => {
+        const url = UserConstants.DAEMON_HTTP_API_HOST + `/service/scheduler/${deviceId}/schedule-ids/${scheduleIDs.join('+')}`
+
+        const res = (await axios.delete(url))
+
+        console.log({
+            target: "SchedulerAPIsClient.postDailySchedule",
+            schedulesList: res.status
+        })
+    }
 
 }

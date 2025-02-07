@@ -11,6 +11,7 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { IDevice } from '@/models/client';
 import { grey } from '@mui/material/colors';
+import { Typography } from '@mui/material';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -42,20 +43,24 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 export default function DevicesTables({
   rows,
   onRowClick,
+  title
 }: {
   rows: IDevice[],
   onRowClick?: (row: IDevice) => void,
-
+  title?: string
 }) {
   return (
-    <TableContainer component={Paper}>
+    <TableContainer component={Paper} elevation={1}>
+      {title && <Typography color="primary" fontSize={"lg"} sx={{ fontWeight: "bolder", textAlign: "center", alignContent: 'center', marginY: 1, width: "100%" }}>
+        {title}
+      </Typography>}
       <Table sx={{ minWidth: 700, }} aria-label="customized table">
         <TableHead>
-          <TableRow sx={{fontWeight: "bolder"}}>
+          <TableRow sx={{ fontWeight: "bolder" }}>
             <StyledTableCell>Device ID</StyledTableCell>
             <StyledTableCell >Name</StyledTableCell>
             <StyledTableCell >Label</StyledTableCell>
-            <StyledTableCell >Profile Name</StyledTableCell>
+            {/* <StyledTableCell >Profile Name</StyledTableCell> */}
 
           </TableRow>
         </TableHead>
@@ -65,7 +70,7 @@ export default function DevicesTables({
 
               sx={{
                 cursor: onRowClick ? 'pointer' : '',
-               
+
               }}
 
               onClick={() => {
@@ -75,7 +80,7 @@ export default function DevicesTables({
 
               }
 
-            
+
 
 
               }>
@@ -84,7 +89,7 @@ export default function DevicesTables({
               </StyledTableCell>
               <StyledTableCell component="th" scope="row" >{row.name}</StyledTableCell>
               <StyledTableCell >{row.label}</StyledTableCell>
-              <StyledTableCell >{row.deviceProfileName}</StyledTableCell>
+              {/* <StyledTableCell >{row.deviceProfileName}</StyledTableCell> */}
 
             </StyledTableRow>
           ))}

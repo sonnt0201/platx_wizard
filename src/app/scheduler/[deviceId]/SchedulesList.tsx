@@ -8,8 +8,11 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import dayjs from "dayjs";
-
+// import ms from "ms";
 import duration from "dayjs/plugin/duration"
+import ms from "ms";
+import EnhancedTable from "@/components/EnhancedTable";
+import { IDevice } from "@/models/client";
 
 
 dayjs.extend(duration);
@@ -18,58 +21,86 @@ dayjs.extend(duration);
  * Table to show schedule list
  */
 export const SchedulesList = ({
-    list
+    list,
+    device,
+    onDeleteClick
 }: {
-    list: ISchedule[]
+    list: ISchedule[],
+    device?: IDevice,
+    /**
+     * Notify parent when delete button is clicked
+     * @param selected string array as list of selected devices' ids to be deleted
+    
+     */
+    onDeleteClick?: (selected: string[]) => void
 }) => {
 
-    /**
-     * Display repeat time in readable format
-     */
-    // const repeatTimeText = (row: ISchedule) => {
-    //     let text = "";
-    //     let durationMillisec = row.repeatTime;
-
-
-    //   text +=  (durationMillisec > MillisecondsOption.ONE_DAY) ? durationMillisec / MillisecondsOption.ONE_DAY + " days " : "";
-
-    //   text +=   durationMillisec / MillisecondsOption.ONE_HOUR + " hours";
-
     
-
-    //   return text;
-        
-    // }
-
-
     return (<TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table">
-            <TableHead >
-                <TableRow>
-                    <TableCell>Schedule ID</TableCell>
-                    <TableCell>Next Timeout</TableCell>
-                    <TableCell >Control</TableCell>
-                    <TableCell >Repeat Time</TableCell>
+        <EnhancedTable<ISchedule> 
+        
+        title={device? device.name : ""}
 
-                </TableRow>
-            </TableHead>
-            <TableBody>
-                {list.map((row) => (
-                    <TableRow
-                        key={row.id}
-                    // sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                    >
-                        <TableCell component="td" scope="row" width={"30%"}>
-                            {row.id}
-                        </TableCell>
-                        <TableCell>{dayjs(row.incomingTime).format("HH:mm:ss DD/MM/YYYY")}</TableCell>
-                        <TableCell>{row.control}</TableCell>
-                        <TableCell >{}</TableCell>
-                        {/* <TableCell align="right">{row.protein}</TableCell> */}
-                    </TableRow>
-                ))}
-            </TableBody>
-        </Table>
+        columns={[
+            {
+                keyMap: "id",
+                label: "Schedule ID",
+
+            },
+            {
+                keyMap: "incomingTime",
+                label: "Next Deadline",
+                formatDisplay: (value) => {
+                    return dayjs(value).format("HH:mm:ss DD/MM/YYYY")
+                },
+            },
+            {
+                keyMap: "repeatTime",
+                label: "Period",
+                formatDisplay: (val) => {
+                    if (typeof val === 'number') return ms(val, {
+                        long: true
+                    })
+
+                    return ""
+                },
+
+            },
+            {
+                keyMap: "repeatCount",
+                label: "Remaining Counts",
+                formatDisplay: (val) => {
+
+                    if (typeof val === 'number') {
+                        return val >= 0 ? val : "Indefinite"
+                    }
+
+                    return "Type Error"
+
+                }
+            },
+            {
+                keyMap: "control",
+                label: "Control"
+            }
+        ]}
+
+            rows={list} 
+        //   label = {"Schedules"}
+        onDeleteClick={(selected) => {
+
+            const selectedStr = selected.map(s => s.toString())
+            
+            onDeleteClick?.(selectedStr)
+            // console.log("Deleting: ",selected )
+        }}
+
+        onSelectedRowsChanged={(selected) => {
+            console.log("Selected: ",selected)
+        }}
+        />
+
+
     </TableContainer>)
 
 

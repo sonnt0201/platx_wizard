@@ -1,11 +1,12 @@
 'use client'
 
-import { createTheme, LinearProgress, Paper, Stack, ThemeProvider } from "@mui/material"
+import { createTheme, LinearProgress, Paper, Stack, ThemeProvider, Typography } from "@mui/material"
 
 import { themeConstant } from "../theme"
 import DevicesTables from "@/components/DevicesTable"
 import { DevicesManager, IDevice } from "@/models/client"
 import { useEffect, useState } from "react"
+import { DeviceScheduler } from "./[deviceId]/DeviceScheduler"
 
 export const Scheduler = () => {
 
@@ -14,6 +15,8 @@ export const Scheduler = () => {
 
     // all devices of customer
     const [devices, setDevices] = useState<IDevice[]>([])
+
+    const [selectedDeviceID, setSelectedDeviceID] = useState<string>();
 
     useEffect(() => {
         updateAllDevices();
@@ -43,18 +46,39 @@ export const Scheduler = () => {
         <ThemeProvider theme={createTheme(themeConstant)}>
             {loading && <LinearProgress color="primary" />}
 
-            <Paper id="wrapper for table" sx={{margin: 2}} >
+            <Paper id="outside wrapper for all" sx={{ margin: 2 }} elevation={0}>
 
-                <Stack id={"Wrapper"} direction={"column"}>
 
-                    <DevicesTables rows={devices} 
-                    onRowClick={(row) => {
-                        console.log(row)
 
-                        window.location.replace(`scheduler/${row.id.id}`)
 
-                    }}
-                    />
+                <Stack id={"Wrapper for all"} direction={"row"} spacing={2}>
+
+                    {/* <Paper id = "wrapper for device table" elevation={0} > */}
+
+
+                      
+                        <div className={`${selectedDeviceID ? 'w-5/12' : `w-screen`}`}>
+                        <DevicesTables
+                        
+                        title="DEVICES"
+
+                        rows={devices}
+                            onRowClick={(row) => {
+                                console.log(row)
+
+                                setSelectedDeviceID(row.id.id)
+                                // window.location.replace(`scheduler/${row.id.id}`)
+
+                            }}
+                        />
+                        </div>
+                     
+
+                    {/* </Paper> */}
+
+
+
+                    {selectedDeviceID && <DeviceScheduler deviceId={selectedDeviceID} />}
 
                 </Stack>
             </Paper>
