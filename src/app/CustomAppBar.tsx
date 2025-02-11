@@ -54,9 +54,9 @@ export function CustomAppBar() {
                    
                   
                     
-                    src={"/platformx-white.svg"}
+                    src={"/sensorlab-white.svg"}
                     alt="csv-icon"
-                    width={50}
+                    width={110}
                 />
             <Typography
               variant="h6"
