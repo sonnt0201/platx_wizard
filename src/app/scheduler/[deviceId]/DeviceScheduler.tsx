@@ -306,7 +306,7 @@ export const DeviceScheduler = ({ deviceId }: { deviceId: string }) => {
 
             <ScheduleCreatorDialog
 
-                open={displayEditScheduleDialog}
+                open={displayCreateScheduleDialog || displayEditScheduleDialog}
 
                 onCloseClick={() => {
                     setDisplayCreateScheduleDialog(false);
@@ -331,6 +331,8 @@ export const DeviceScheduler = ({ deviceId }: { deviceId: string }) => {
 
                 }
                 }
+
+                
 
                 placeHolder={displayEditScheduleDialog ? schedulesList.find(schedule => schedule.id == selected[0].toString()) : undefined}
 

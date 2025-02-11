@@ -7,7 +7,7 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect, useState } from 'react';
-import {  FormControl, FormControlLabel, InputLabel, MenuItem, Select, Stack, Switch } from '@mui/material';
+import { FormControl, FormControlLabel, InputLabel, MenuItem, Select, Stack, Switch } from '@mui/material';
 import { ISchedule, MillisecondsOption } from '@/models/client/Schedule';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -50,14 +50,14 @@ export const ScheduleCreatorDialog = ({
     placeHolder?: ISchedule
 }) => {
 
-    const [inputOptions, setInputOptions] = useState<Partial<Omit<ISchedule, 'id'>>>( 
+    const [inputOptions, setInputOptions] = useState<Partial<Omit<ISchedule, 'id'>>>(
         {
-        incomingTime: Date.now(),
-        repeatTime: MillisecondsOption.ONE_DAY,
-        repeatCount: 1,
-        control: ""
-    }
-)
+            incomingTime: Date.now(),
+            repeatTime: MillisecondsOption.ONE_DAY,
+            repeatCount: 1,
+            control: ""
+        }
+    )
 
     const [repeatIndefinitely, setRepeatIndefinitely] = useState<boolean>(false);
 
@@ -87,12 +87,25 @@ export const ScheduleCreatorDialog = ({
     }, [repeatIndefinitely])
 
     useEffect(() => {
-        if (placeHolder) setInputOptions({
-            incomingTime: placeHolder.incomingTime,
-            repeatTime: placeHolder.repeatTime,
-            repeatCount: placeHolder.repeatCount,
-            control: placeHolder.control
-        })
+        if (placeHolder) {
+            setInputOptions({
+                incomingTime: placeHolder.incomingTime,
+                repeatTime: placeHolder.repeatTime,
+                repeatCount: placeHolder.repeatCount,
+                control: placeHolder.control
+            })
+
+            if (placeHolder.repeatCount === -1) setRepeatIndefinitely(true);
+            else setRepeatIndefinitely(false);
+        } else {
+
+            setInputOptions({
+                incomingTime: Date.now(),
+                repeatTime: MillisecondsOption.ONE_DAY,
+                repeatCount: 1,
+                control: ""
+            })
+        }
     }, [placeHolder])
 
     return (
@@ -113,7 +126,7 @@ export const ScheduleCreatorDialog = ({
                     Input your schedule time and control label.
                 </DialogContentText>
                 {/* <Divider /> */}
-                <Stack direction={"column"} spacing={6}   sx={{ flexWrap: 'wrap', margin: 2 }}>
+                <Stack direction={"column"} spacing={6} sx={{ flexWrap: 'wrap', margin: 2 }}>
 
                     <Stack id="first row of input" direction={"row"} spacing={2} useFlexGap
                         sx={{ flexWrap: 'wrap', margin: 2 }}>
@@ -147,22 +160,22 @@ export const ScheduleCreatorDialog = ({
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
 
                                 <DateTimePicker label="Next Due Time"
-                                
-                                value={inputOptions && inputOptions.incomingTime ? dayjs(inputOptions.incomingTime) : dayjs(Date.now())}
 
-                                onChange={(value) => {
-                                    if (value) {
-                                        const newInput: Partial<Omit<ISchedule, 'id'>> = {
-                                            ...inputOptions,
-                                            incomingTime: value.valueOf()
+                                    value={inputOptions && inputOptions.incomingTime ? dayjs(inputOptions.incomingTime) : dayjs(Date.now())}
+
+                                    onChange={(value) => {
+                                        if (value) {
+                                            const newInput: Partial<Omit<ISchedule, 'id'>> = {
+                                                ...inputOptions,
+                                                incomingTime: value.valueOf()
+                                            }
+
+                                            setInputOptions(newInput);
                                         }
 
-                                        setInputOptions(newInput);
-                                    }
 
 
-
-                                }} />
+                                    }} />
                             </LocalizationProvider>
                         </FormControl>
 
@@ -221,10 +234,10 @@ export const ScheduleCreatorDialog = ({
                             disabled={repeatIndefinitely}
                             id="outlined-number"
                             label="Occurrences Limit"
-                            type={repeatIndefinitely? "text": "number"}
-                            value={repeatIndefinitely? "NONE" :inputOptions.repeatCount}
+                            type={repeatIndefinitely ? "text" : "number"}
+                            value={repeatIndefinitely ? "NONE" : inputOptions.repeatCount}
                             onChange={(e) => {
-                               if (!repeatIndefinitely) setInputOptions(prev => {
+                                if (!repeatIndefinitely) setInputOptions(prev => {
                                     const out = {
                                         ...prev,
                                         repeatCount: Number(e.target.value)
@@ -237,10 +250,10 @@ export const ScheduleCreatorDialog = ({
                                 inputLabel: {
                                     shrink: true,
                                 },
-                                htmlInput: { min: 0,  step: 1 }
+                                htmlInput: { min: 0, step: 1 }
                             }}
 
-                           
+
 
                         />
                     </Stack>
