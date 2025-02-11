@@ -4,7 +4,7 @@ import { AppRouterCacheProvider } from '@mui/material-nextjs/v15-appRouter';
 
 import "./globals.css";
 
-import {  CustomAppBar } from "./CustomAppBar";
+import { CustomAppBar } from "./CustomAppBar";
 import { CustomFooter } from "./CustomFooter";
 
 const geistSans = localFont({
@@ -36,11 +36,16 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AppRouterCacheProvider>
-         
-            <CustomAppBar />
+
+          <CustomAppBar />
+
+            <div style={{ marginBottom: "2rem" }}>
             {children}
-       
-            <CustomFooter /> {/* Add the footer here */}
+            </div>
+
+
+
+          <CustomFooter /> {/* Add the footer here */}
         </AppRouterCacheProvider>
 
       </body>

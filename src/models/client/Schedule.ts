@@ -114,7 +114,7 @@ export const SchedulerAPIsClient = {
     },
 
     /**
-     * Delete a schedule
+     * Send http request to Delete a schedule
      */
     deleteSchedules: async (deviceId: string, scheduleIDs: string[]) => {
         const url = UserConstants.DAEMON_HTTP_API_HOST + `/service/scheduler/${deviceId}/schedule-ids/${scheduleIDs.join('+')}`
@@ -125,6 +125,31 @@ export const SchedulerAPIsClient = {
             target: "SchedulerAPIsClient.postDailySchedule",
             schedulesList: res.status
         })
+    },
+
+    /**
+     * send http request to Edit a schedule with new options
+     * 
+     
+     * 
+     * @param deviceId 
+     * @param scheduleID 
+     * @param options 
+     * @throws Error if failed
+     */
+    editSchedule: async (deviceId: string, scheduleID: string, options: Partial<Omit<ISchedule, "id">>) => {
+    
+    
+        const url = UserConstants.DAEMON_HTTP_API_HOST + `/service/scheduler/${deviceId}/schedule-id/${scheduleID}`
+
+        const res = (await axios.put(url, options))
+
+        console.log({
+            target: "SchedulerAPIsClient.editSchedule",
+            schedulesList: res.status
+        })
     }
+
+    
 
 }

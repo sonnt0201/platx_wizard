@@ -6,7 +6,7 @@
  */
 
 import * as React from 'react';
-import { alpha } from '@mui/material/styles';
+
 import Box from '@mui/material/Box';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -25,8 +25,9 @@ import Tooltip from '@mui/material/Tooltip';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import DeleteIcon from '@mui/icons-material/Delete';
-import FilterListIcon from '@mui/icons-material/FilterList';
+
 import { visuallyHidden } from '@mui/utils';
+import { CachedRounded } from '@mui/icons-material';
 
 /**
  * Define columns' headers for table
@@ -51,7 +52,7 @@ interface Column<T> {
    * 
    * @param value  Column value type, also type for property of `keyMap`
    */
-  formatDisplay?: <ColType>(value: T[keyof T]) => string | number;
+  formatDisplay?: (value: T[keyof T]) => string | number;
 }
 
 interface GenericTableProps<T> {
@@ -61,6 +62,8 @@ interface GenericTableProps<T> {
   onSelectedRowsChanged?: (selected: readonly (string | number)[]) => void;
   onDeleteClick?: (selected: readonly (string | number)[]) => void,
 
+  onReloadClick?: () => void,
+
 }
 
 export default function EnhancedTable<T extends { id: string | number }>({
@@ -69,6 +72,7 @@ export default function EnhancedTable<T extends { id: string | number }>({
   title,
   onSelectedRowsChanged,
   onDeleteClick,
+  onReloadClick
 
 }: GenericTableProps<T>) {
   const [order, setOrder] = React.useState<'asc' | 'desc'>('asc');
@@ -133,7 +137,7 @@ export default function EnhancedTable<T extends { id: string | number }>({
    */
   React.useEffect(() => {
     setSelected([])
-  },[rows])
+  }, [rows])
 
   /**
    * Noti changes of selected rows to parent component
@@ -150,19 +154,21 @@ export default function EnhancedTable<T extends { id: string | number }>({
           <Typography sx={{ flex: '1 1 100%' }} variant="h6" component="div">
             {title}
           </Typography>
+
+
           {selected.length > 0 ? (
             <Tooltip title="Delete">
-              <IconButton onClick={() => onDeleteClick?.(selected)}>
+              <IconButton onClick={() => onDeleteClick?.(selected)} color='primary'>
                 <DeleteIcon />
               </IconButton>
             </Tooltip>
-          ) : (
-            <Tooltip title="Filter list">
-              <IconButton>
-                <FilterListIcon />
-              </IconButton>
-            </Tooltip>
-          )}
+          ) : <></>}
+
+          <Tooltip title="Reload">
+            <IconButton onClick={() => onReloadClick?.()} color='primary'>
+              <CachedRounded />
+            </IconButton>
+          </Tooltip>
         </Toolbar>
         <TableContainer>
           <Table sx={{ minWidth: 750 }} size={dense ? 'small' : 'medium'}>
@@ -211,13 +217,13 @@ export default function EnhancedTable<T extends { id: string | number }>({
 
 
                 if (typeof a[orderBy] === 'string' && typeof b[orderBy] === 'string') {
-                   return order === 'asc' ? (a[orderBy].localeCompare(b[orderBy])) : (b[orderBy].localeCompare(a[orderBy]));
-                  
+                  return order === 'asc' ? (a[orderBy].localeCompare(b[orderBy])) : (b[orderBy].localeCompare(a[orderBy]));
+
                 }
 
                 return 0;
 
-              }).map((row, index) => {
+              }).map((row) => {
                 const isItemSelected = selected.includes(row.id);
                 return (
                   <TableRow
@@ -253,7 +259,13 @@ export default function EnhancedTable<T extends { id: string | number }>({
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </Paper>
-      <FormControlLabel control={<Switch checked={dense} onChange={handleChangeDense} />} label="Dense padding" />
+      <FormControlLabel
+        control={<Switch checked={dense} onChange={handleChangeDense} />} label="Dense padding"
+        sx={{
+          marginX: 1
+        }}
+
+      />
     </Box>
   );
 }

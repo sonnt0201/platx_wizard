@@ -1,6 +1,6 @@
 'use client'
 
-import { createTheme, LinearProgress, Paper, Stack, ThemeProvider, Typography } from "@mui/material"
+import { createTheme, LinearProgress, Paper, Stack, ThemeProvider } from "@mui/material"
 
 import { themeConstant } from "../theme"
 import DevicesTables from "@/components/DevicesTable"

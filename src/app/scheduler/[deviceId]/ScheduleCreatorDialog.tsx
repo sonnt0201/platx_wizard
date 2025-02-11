@@ -7,11 +7,12 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { useEffect, useState } from 'react';
-import { Divider, FormControl, FormControlLabel, InputLabel, MenuItem, Radio, Select, Stack, Switch } from '@mui/material';
+import {  FormControl, FormControlLabel, InputLabel, MenuItem, Select, Stack, Switch } from '@mui/material';
 import { ISchedule, MillisecondsOption } from '@/models/client/Schedule';
 import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import ms from 'ms';
+import dayjs from 'dayjs';
 
 /**
  * Supported controls to create for scheduler
@@ -35,19 +36,28 @@ export const ScheduleCreatorDialog = ({
     onSubmitSchedule,
     open,
     onCloseClick,
+    placeHolder,
 }: {
     onSubmitSchedule?: (options: Partial<Omit<ISchedule, 'id'>>) => void
     open: boolean;
     onCloseClick?: () => void
 
+    /**
+     * use for edit mode, to show placeholder in input fields
+     * 
+     * place holder as the selected schedule.
+     */
+    placeHolder?: ISchedule
 }) => {
 
-    const [inputOptions, setInputOptions] = useState<Partial<Omit<ISchedule, 'id'>>>({
-        incomingTime: 0,
+    const [inputOptions, setInputOptions] = useState<Partial<Omit<ISchedule, 'id'>>>( 
+        {
+        incomingTime: Date.now(),
         repeatTime: MillisecondsOption.ONE_DAY,
         repeatCount: 1,
         control: ""
-    })
+    }
+)
 
     const [repeatIndefinitely, setRepeatIndefinitely] = useState<boolean>(false);
 
@@ -75,6 +85,15 @@ export const ScheduleCreatorDialog = ({
             return out
         })
     }, [repeatIndefinitely])
+
+    useEffect(() => {
+        if (placeHolder) setInputOptions({
+            incomingTime: placeHolder.incomingTime,
+            repeatTime: placeHolder.repeatTime,
+            repeatCount: placeHolder.repeatCount,
+            control: placeHolder.control
+        })
+    }, [placeHolder])
 
     return (
         <Dialog
@@ -127,7 +146,11 @@ export const ScheduleCreatorDialog = ({
                         <FormControl className='w-5/12' >
                             <LocalizationProvider dateAdapter={AdapterDayjs}>
 
-                                <DateTimePicker label="Next Due Time" onChange={(value) => {
+                                <DateTimePicker label="Next Due Time"
+                                
+                                value={inputOptions && inputOptions.incomingTime ? dayjs(inputOptions.incomingTime) : dayjs(Date.now())}
+
+                                onChange={(value) => {
                                     if (value) {
                                         const newInput: Partial<Omit<ISchedule, 'id'>> = {
                                             ...inputOptions,
@@ -235,7 +258,7 @@ export const ScheduleCreatorDialog = ({
                 <Button onClick={() => {
                     if (onSubmitSchedule) onSubmitSchedule(inputOptions);
                     if (onCloseClick) onCloseClick();
-                }}>ADD SCHEDULE</Button>
+                }}>COMPLETE</Button>
             </DialogActions>
         </Dialog>
     )

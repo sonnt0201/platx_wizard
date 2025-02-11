@@ -1,11 +1,8 @@
 import { ISchedule } from "@/models/client/Schedule"
 import * as React from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
+
 import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
+
 import Paper from '@mui/material/Paper';
 import dayjs from "dayjs";
 // import ms from "ms";
@@ -23,7 +20,9 @@ dayjs.extend(duration);
 export const SchedulesList = ({
     list,
     device,
-    onDeleteClick
+    onDeleteClick,
+    onSelectedRowsChanged,
+    onReloadClick
 }: {
     list: ISchedule[],
     device?: IDevice,
@@ -32,7 +31,9 @@ export const SchedulesList = ({
      * @param selected string array as list of selected devices' ids to be deleted
     
      */
-    onDeleteClick?: (selected: string[]) => void
+    onDeleteClick?: (selected: string[]) => void,
+    onSelectedRowsChanged?: (selected: readonly (string | number)[]) => void,
+    onReloadClick?: () => void
 }) => {
 
     
@@ -97,6 +98,12 @@ export const SchedulesList = ({
 
         onSelectedRowsChanged={(selected) => {
             console.log("Selected: ",selected)
+
+            onSelectedRowsChanged?.(selected)
+        }}
+
+        onReloadClick={() => {
+            onReloadClick?.()
         }}
         />
 
