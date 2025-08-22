@@ -4,7 +4,7 @@
  * 
  */
 export const UserConstants = {
-    THINGSBOARD_HOST: 'http://tbc7.hust-2slab.org:8080',
+    THINGSBOARD_HOST: 'https://tbc7.hust-2slab.org',
     
     /**
      * HTTP API service provider of IoT Platform X DAEMON

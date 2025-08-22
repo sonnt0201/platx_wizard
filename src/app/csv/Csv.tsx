@@ -51,13 +51,16 @@ export const Csv = () => {
                 selectedKeys
             )
 
+            // console.log("result.data: ", result.data)
+            console.log("selectedKeys: ", selectedKeys)
+            
             const csv = new CsvTool(
                 result.data,
                 selectedKeys,
                 sampleTime
             )
 
-
+            //  console.log("csv string: ", csv.toCsvString())
 
             const csvString = csv.toCsvString();
 

@@ -23,9 +23,12 @@ export class CsvTool {
 
     constructor(data: ITimeSeriesRes, keys: string[], timestep: number) {
 
+        // console.log("data: ", data);
+
         // check valid keys
         keys.forEach(key => {
             if (data[key] === undefined) {
+                console.error("key: ", key, " is not valid in data: ", data);
                 this._valid = false;
 
             }
@@ -35,6 +38,8 @@ export class CsvTool {
 
         // assign columnheader
         this._columnHeaders = new Set(keys);
+        console.log("keys: ", keys);
+        console.log("column headers: ", this._columnHeaders);
         this._originData = data;
         this._timestep = timestep;
         // map data
@@ -62,6 +67,7 @@ export class CsvTool {
         // add first line as header
         const TIME_COLUMN_HEADER = 'timestamp';
         str += TIME_COLUMN_HEADER;
+        // console.log("column headers: ", this._columnHeaders);
         this._columnHeaders.forEach(header => {
             str += "," + header;
         })
@@ -102,7 +108,7 @@ export class CsvTool {
             // calibrate type for value
             if (typeof pair.value === 'string')
                 try {
-                    valAsArray = JSON.parse(pair.value);
+                    valAsArray = [JSON.parse(pair.value)];
                 } catch (e) {
                     console.error(e);
                     this._valid = false;
@@ -116,7 +122,7 @@ export class CsvTool {
 
             if (Array.isArray(pair.value)) valAsArray = pair.value;
 
-
+            console.log("time: ", pair.ts, "valAsArray: ", valAsArray);
             // separate and map with all timepoints
             valAsArray.forEach((val, index) => {
                 let time: NumberAsString
