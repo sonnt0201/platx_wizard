@@ -45,7 +45,7 @@ export default function RootLayout({
 
 
 
-          <CustomFooter /> {/* Add the footer here */}
+          <CustomFooter />
         </AppRouterCacheProvider>
 
       </body>
