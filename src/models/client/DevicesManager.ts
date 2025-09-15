@@ -150,7 +150,7 @@ class DevicesClass {
      */
     async timeseriesValues(device: IDevice, startTs: number, endTs: number, keys: string[]): Promise<{ data: ITimeSeriesRes, error?: Error }> {
         const url = UserConstants.THINGSBOARD_HOST
-            + `/api/plugins/telemetry/DEVICE/${device.id.id}/values/timeseries?startTs=${startTs}&endTs=${endTs}&keys=${keys.join(',')}`;
+            + `/api/plugins/telemetry/DEVICE/${device.id.id}/values/timeseries?startTs=${startTs}&endTs=${endTs}&keys=${keys.join(',')}&limit=50000`;
 
         try {
             const res = await axios.get(url, {

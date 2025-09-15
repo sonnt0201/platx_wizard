@@ -1,7 +1,7 @@
 'use client'
 
 import { ThemeProvider } from "@emotion/react"
-import {  Button, createTheme, LinearProgress, Paper, Stack, TextField, Tooltip } from "@mui/material"
+import { Alert, Box, Button, createTheme, LinearProgress, Paper, Snackbar, Stack, TextField, Tooltip } from "@mui/material"
 import { themeConstant } from "../theme"
 
 import { useEffect, useState } from "react";
@@ -12,7 +12,13 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from "dayjs";
 import { KeysSelector } from "./KeysSelector";
-import { CsvTool } from "@/utils/CsvTool";
+import { CsvTool } from "@/app/csv/CsvTool";
+import { DataGrid } from "@mui/x-data-grid/DataGrid";
+import { GridColDef } from "@mui/x-data-grid";
+import DatasetIcon from '@mui/icons-material/Dataset';
+
+
+// type TimeFormat = "readable" | "timestamp"
 
 export const Csv = () => {
 
@@ -24,23 +30,35 @@ export const Csv = () => {
     const [endTime, setEndTime] = useState<dayjs.Dayjs>(); // end time of csv records 
     const [sampleTime, setSampleTime] = useState<number>(1000); // sample time of device, fetch from server or choose optionally
     const [selectedKeys, setSelectedKeys] = useState<string[]>([]); // keys to export, keys of timeserires values, etc: pir array has top, right, left, ... keys
-    
+
+    /** temporary save key that invalid (no timeseries data found for those keys)  */
+    const [, setInvalidKeys] = useState<string[]>([]);
+
+    const [dataColDefs, setDataColDefs] = useState<unknown[]>([]); // columns for data grid
+    const [dataGridRows, setDataGridRows] = useState<unknown[]>([]); // rows for data grid
+
+    const [notification, setNotification] = useState<INotification>();
+
     // if widget is loading or not, common for all components
     const [loading, setLoading] = useState<boolean>(false);
+
+    // const [timeFormat, setTimeFormat] = useState<TimeFormat>("readable");
+
     useEffect(() => {
         console.log("time: ", startTime?.valueOf());
     }, [startTime])
 
     useEffect(() => {
         console.log(Auth.tokenInfo)
-    },[])
+    }, [])
 
     useEffect(() => {
         updateSampleTime()
-    },[device])
+    }, [device])
 
-    const exportCsv = async () => {
-       
+
+
+    const updateDataGridRows = async () => {
         if (device && startTime && endTime && selectedKeys) {
             setLoading(true)
 
@@ -53,7 +71,48 @@ export const Csv = () => {
 
             // console.log("result.data: ", result.data)
             console.log("selectedKeys: ", selectedKeys)
-            
+
+
+            const csv = new CsvTool(
+                result.data,
+                selectedKeys,
+                sampleTime
+            )
+
+            const dataGridRows = csv.toGridRowsData();
+            const dataColDefs = csv.toGridColumnsDefinition();
+            setDataGridRows(dataGridRows);
+            setDataColDefs(dataColDefs);
+            setInvalidKeys(csv.invalidKeys)
+            setLoading(false);
+            setNotification({
+                severity: "success",
+                timestamp: Date.now(),
+                message: `Loaded ${dataGridRows.length} rows of ${selectedKeys.length} keys`
+            })
+
+        }
+    }
+
+    useEffect(() => {
+        updateDataGridRows()
+    }, [device, startTime, endTime, selectedKeys, sampleTime])
+
+    const exportCsv = async () => {
+
+        if (device && startTime && endTime && selectedKeys) {
+            setLoading(true)
+
+            const result = await DevicesManager.timeseriesValues(
+                device,
+                startTime?.valueOf(),
+                endTime.valueOf(),
+                selectedKeys
+            )
+
+            // console.log("result.data: ", result.data)
+            console.log("selectedKeys: ", selectedKeys)
+
             const csv = new CsvTool(
                 result.data,
                 selectedKeys,
@@ -88,6 +147,8 @@ export const Csv = () => {
 
     }
 
+
+
     // fetch sample time of selected device from tb server
     const updateSampleTime: () => void = async () => {
         if (!device) return 0;
@@ -95,75 +156,149 @@ export const Csv = () => {
 
         if (result.error) return 0;
         if (!result.credentials) return 0;
-        const timeResult = await DevicesManager.getSharedAttribute<number>(result.credentials, "sampleTime");
-        if (timeResult.error) return 0;
 
-        if (timeResult.values) {
-            setSampleTime(timeResult.values);
-            return;
+        try {
+            const timeResult = await DevicesManager.getSharedAttribute<number>(result.credentials, "sampleTime");
+            if (timeResult.error) return 0;
+
+            if (timeResult.values) {
+                setSampleTime(timeResult.values);
+                return;
+            }
+
+        } catch (e) {
+            console.error(e);
         }
 
         return 0;
     }
 
-    return <ThemeProvider theme={createTheme(themeConstant)}>
+    return (<ThemeProvider theme={createTheme(themeConstant)}>
 
-        
-        <Paper elevation={3} sx={{ padding: 1, margin: 2 }} key={"on-top-tool-box"} >
-            <Stack direction="row" spacing={2}>
 
-                <DeviceSelector onDeviceSelected={(value) => setDevice(value)} 
-                   notiLoading={(value) => setLoading(value)}
+        <Paper elevation={3} sx={{ padding: 2, margin: 2 }} key={"on-top-tool-box"}   >
+
+            <Stack direction={"column"} spacing={1}>
+
+                <Stack direction="row" spacing={2} alignItems={"center"}>
+
+                    <DeviceSelector onDeviceSelected={(value) => setDevice(value)}
+                        notiLoading={(value) => setLoading(value)}
+                        required
+                        size="small"
+
                     />
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
 
-                    <DateTimePicker label="Start time" onChange={(value) => {
-                        if (value) setStartTime(value)
+                        <DateTimePicker label="Start time"
 
-                    }} />
-                    <DateTimePicker label="End time" onChange={(value) => {
-                        if (value) setEndTime(value)
+                            slotProps={{
+                                textField: {
+                                    size: "small", // 👈 makes the input smaller,
+                                    required: true,
+                                },
+                            }}
 
-                    }} />
+                            onChange={(value) => {
+                                if (value) setStartTime(value)
 
-                </LocalizationProvider>
+                            }} />
+                        <DateTimePicker label="End time"
+                            slotProps={{
+                                textField: {
+                                    size: "small", // 👈 makes the input smaller
+                                    required: true,
+                                },
+                            }}
+                            onChange={(value) => {
+                                if (value) setEndTime(value)
 
-                <Tooltip title="Time step between each telemetry value">
-                    <TextField
-                        id="outlined-number"
-                        label="Sample time(ms)"
-                        type="number"
-                        slotProps={{
-                            inputLabel: {
-                                shrink: true,
-                            },
-                        }}
-                        
-                        value={sampleTime}
-                        onChange={e => setSampleTime(Number(e.target.value))}
-                    // className="w-50%"
-                    />
-                </Tooltip>
-                
-                {/* export button */}
-                <Button color="secondary" variant="contained" className="!my-1"
-                    onClick={exportCsv}
-                    disabled={loading || (!selectedKeys) || (selectedKeys.length === 0)}
-                >Export CSV</Button>
+                            }} />
+
+                    </LocalizationProvider>
+
+                    <Tooltip title="Time step between each telemetry value">
+                        <TextField
+                            id="outlined-number"
+                            label="Sample time(ms)"
+                            type="number"
+                            slotProps={{
+                                inputLabel: {
+                                    shrink: true,
+
+                                },
+                            }}
+                            size="small"
+
+                            value={sampleTime}
+                            onChange={e => setSampleTime(Number(e.target.value))}
+                        // className="w-50%"
+                        />
+                    </Tooltip>
+                    {/* export button */}
+                    <Button color="secondary" variant="contained" className="!my-1"
+                        onClick={exportCsv}
+                        disabled={loading || (!selectedKeys) || (selectedKeys.length === 0)}
+
+                        startIcon={<DatasetIcon />}
+                    >Export CSV</Button>
+
+                </Stack>
+
+                <LinearProgress
+                    color="primary"
+                    sx={{
+                        visibility: loading ? "visible" : "hidden",
+                    }}
+                />
+
+                {device
+                    && startTime
+                    && endTime
+                    && <KeysSelector
+                        device={device}
+                        // invalidKeys={invalidKeys}
+                        startTs={startTime.valueOf()}
+                        endTs={endTime.valueOf()}
+                        onSelectedKeysChanged={(keys) => setSelectedKeys(keys)}
+                        notiLoading={(val) => setLoading(val)}
+                    />}
+                {
+                    (device && startTime && endTime && selectedKeys && !loading) &&
+                    <Box sx={{ height: 450, width: '100%' }}>
+                        <DataGrid
+                            rows={dataGridRows || []}
+                            columns={dataColDefs as GridColDef[] || []}
+                            initialState={{
+                                pagination: {
+                                    paginationModel: {
+                                        pageSize: 20,
+                                    },
+                                },
+                            }}
+                            pageSizeOptions={[5]}
+                            // checkboxSelection
+                            // disableRowSelectionOnClick
+                        // editMode={"cell"}
+                        />
+                    </Box>
+                }
+
+                <Snackbar
+                    open={notification !== undefined}
+                    autoHideDuration={6000}
+                    onClose={() => setNotification(undefined)}
+
+                >
+                    <Alert onClose={() => setNotification(undefined)}
+                        severity={notification?.severity} sx={{ width: '100%' }}>
+                        {notification?.message}
+                    </Alert>
+                </Snackbar>
 
             </Stack>
         </Paper>
 
-        {loading && <LinearProgress color="secondary"  />}
-        {device
-            && startTime
-            && endTime
-            && <KeysSelector
-                device={device}
-                startTs={startTime.valueOf()}
-                endTs={endTime.valueOf()}
-                onSelectedKeysChanged={(keys) => setSelectedKeys(keys)} 
-                notiLoading={(val) => setLoading(val)}
-                />}
-    </ThemeProvider>
+
+    </ThemeProvider>)
 }
