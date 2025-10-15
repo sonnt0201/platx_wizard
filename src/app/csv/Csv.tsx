@@ -5,7 +5,7 @@ import { Alert, Box, Button, createTheme, LinearProgress, Paper, Snackbar, Stack
 import { themeConstant } from "../theme"
 
 import { useEffect, useState } from "react";
-import { Auth, DevicesManager, IDevice } from "@/models/client";
+import { DevicesManager, IDevice } from "@/models/client";
 import { DeviceSelector } from "./DeviceSelector";
 import { DateTimePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -16,8 +16,10 @@ import { CsvTool } from "@/app/csv/CsvTool";
 import { DataGrid } from "@mui/x-data-grid/DataGrid";
 import { GridColDef } from "@mui/x-data-grid";
 import DatasetIcon from '@mui/icons-material/Dataset';
+import { ClientError } from "@/models/client/ClientErrorBase";
 
-
+/** Monitor for CSV Tool service as a thingsboard device with _tbx_prefix */
+const SERVICE_MONITOR_DEVICE_NAME = "_tbx_CsvTool"
 // type TimeFormat = "readable" | "timestamp"
 
 export const Csv = () => {
@@ -42,6 +44,7 @@ export const Csv = () => {
     // if widget is loading or not, common for all components
     const [loading, setLoading] = useState<boolean>(false);
 
+    const [serviceMonitor, setServiceMonitor] = useState<IDevice>();
     // const [timeFormat, setTimeFormat] = useState<TimeFormat>("readable");
 
     useEffect(() => {
@@ -49,14 +52,52 @@ export const Csv = () => {
     }, [startTime])
 
     useEffect(() => {
-        console.log(Auth.tokenInfo)
+        // console.log(Auth.tokenInfo)
+
+        createServiceMonitor();
     }, [])
 
     useEffect(() => {
         updateSampleTime()
     }, [device])
 
+    useEffect(() => {
+        pingServiceMonitor();
+    }, [serviceMonitor])
 
+    /** Monitor for CSV Tool service as a thingsboard device with _tbx_prefix */
+    const createServiceMonitor = async () => {
+
+        const result = await DevicesManager.createNewDevice({
+            name: SERVICE_MONITOR_DEVICE_NAME,
+            label: SERVICE_MONITOR_DEVICE_NAME,
+            description: "[Private Internal] Monitor device for IoT Platform Extension's CSV Tool feature",
+        })
+
+        if (result.error === ClientError.HTTP_BAD_REQUEST) {
+            console.log("Monitor device already created, skip")
+        }
+
+
+    }
+
+    /** Just noti "hey, someone access this service!" */
+    const pingServiceMonitor = async () => {
+        if (!serviceMonitor) return;
+        const monitorCred = await DevicesManager.getCredentials(serviceMonitor);
+
+
+        const pingContent =  {
+                agent: navigator.userAgent,
+                mode: process.env.NODE_ENV,
+            }
+
+        await DevicesManager.postTelemetry(
+            monitorCred.credentials,
+            "accessSession",
+            pingContent
+        )
+    }
 
     const updateDataGridRows = async () => {
         if (device && startTime && endTime && selectedKeys) {
@@ -102,6 +143,8 @@ export const Csv = () => {
 
         if (device && startTime && endTime && selectedKeys) {
             setLoading(true)
+
+            setNotification({ message: `Exporting data of ${selectedKeys.length} keys...`, severity: "info", timestamp: Date.now() })
 
             const result = await DevicesManager.timeseriesValues(
                 device,
@@ -180,13 +223,16 @@ export const Csv = () => {
 
             <Stack direction={"column"} spacing={1}>
 
-                <Stack direction="row" spacing={2} alignItems={"center"}>
+                <Stack direction="row" spacing={3} alignItems={"center"}>
 
                     <DeviceSelector onDeviceSelected={(value) => setDevice(value)}
                         notiLoading={(value) => setLoading(value)}
                         required
                         size="small"
-
+                        onAllDevicesLoaded={(devices) => {
+                            const monitor = devices.find(d => d.name === SERVICE_MONITOR_DEVICE_NAME);
+                            if (monitor) setServiceMonitor(monitor);
+                        }}
                     />
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
 
@@ -277,8 +323,9 @@ export const Csv = () => {
                                 },
                             }}
                             pageSizeOptions={[5]}
-                            // checkboxSelection
-                            // disableRowSelectionOnClick
+                            rowHeight={30}
+                        // checkboxSelection
+                        // disableRowSelectionOnClick
                         // editMode={"cell"}
                         />
                     </Box>
@@ -302,3 +349,4 @@ export const Csv = () => {
 
     </ThemeProvider>)
 }
+

@@ -19,9 +19,11 @@ import { themeConstant } from './theme';
 import { Auth } from '@/models/client';
 // import Image from 'next/image';
 
-const pages = [{name: 'Thingsboard', path: "https://tbc7.hust-2slab.org/"}, {name: 'TCP Gateway', path: "/tcp-gateway"}];
+const pages = [{name: '2S LAB Thingsboard', path: "https://tbc7.hust-2slab.org/"}
+  // , {name: 'TCP Gateway', path: "/tcp-gateway"}
+];
 // const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
-const appName = "xWIZARD"
+const appName = "XTENSION"
 export function CustomAppBar() {
   const [anchorElNav, setAnchorElNav] = React.useState<null | HTMLElement>(null);
   const [anchorElUser, setAnchorElUser] = React.useState<null | HTMLElement>(null);

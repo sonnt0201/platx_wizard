@@ -21,7 +21,7 @@ export const CustomFooter = () => {
         alignItems: "center",
       }}
     >
-      <p style={{ margin: "auto" }}>{`© 2025 by Sensor Lab • IoT Platform Extension v1.2.1`}</p>
+      <p style={{ margin: "auto" }}>{`© 2025 by Sensor Lab • IoT Platform Extension v1.3.1`}</p>
     </footer>
   );
 };

@@ -7,11 +7,21 @@ import FormControl from '@mui/material/FormControl';
 import Select, { SelectChangeEvent } from '@mui/material/Select';
 import { useEffect, useState } from "react";
 import { Stack } from "@mui/material";
-export const DeviceSelector = ({ onDeviceSelected, notiLoading, size = "medium", required = false }: {
+export const DeviceSelector = ({ onDeviceSelected, notiLoading, size = "medium", required = false,
+    onAllDevicesLoaded
+ }: {
+    
     onDeviceSelected?: (value?: IDevice) => void,
     notiLoading?: (loading: boolean) => void,
     size?: "small" | "medium",
-    required?: boolean
+    required?: boolean,
+
+    /**
+     * mounted when all devices are fetched from thingsboard instance
+     * @param devices All devices (even those hidden ones)
+     * @returns 
+     */
+    onAllDevicesLoaded?: (devices: IDevice[]) => void,
 }) => {
 
 
@@ -22,7 +32,7 @@ export const DeviceSelector = ({ onDeviceSelected, notiLoading, size = "medium",
 
 
     useEffect(() => {
-        updateAllDevices();
+        updateAllUserDevices();
     }, [])
 
     useEffect(() => {
@@ -30,11 +40,17 @@ export const DeviceSelector = ({ onDeviceSelected, notiLoading, size = "medium",
         console.log("selected device: ", selectedDevice)
     }, [selectedDevice])
 
-    const updateAllDevices = async () => {
+    const updateAllUserDevices = async () => {
         if (notiLoading) notiLoading(true);
-        const list = await DevicesManager.all();
+        const list = (await DevicesManager.all())
+        
+        if (onAllDevicesLoaded && !list.error) onAllDevicesLoaded(list.devices);
+
+        const visibleDevices = list.devices.filter(device => !device.name?.startsWith("_tbx_"));
+        
         console.log(list)
-        setAllDevices(list.devices);
+
+        setAllDevices(visibleDevices);
 
         if (notiLoading) notiLoading(false);
     }
