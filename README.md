@@ -10,7 +10,7 @@
 
 Yêu cầu có môi trường `git` và `NodeJS`
 
-Chạy `PlatX: DAEMON` trước khi khởi động `WIZARD`.
+~~Chạy `PlatX: DAEMON` trước khi khởi động `WIZARD`.~~
 
 
 ### Các bước cài
