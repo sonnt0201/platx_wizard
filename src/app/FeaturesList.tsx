@@ -27,13 +27,13 @@ export const FeaturesList = () => {
 
                 </Grid2>
 
-                <Grid2 size={3}>
+                {/* <Grid2 size={3}>
                     <ActionAreaCard title="Scheduler"
                         description="Scheduler to auto-control the device when scheduled time out."
                         onAreaClick={() => window.location.assign('/scheduler')}
                         imageSrc="/scheduler-icon.svg"
                     />
-                </Grid2>
+                </Grid2> */}
 
             </Grid2>
         </>

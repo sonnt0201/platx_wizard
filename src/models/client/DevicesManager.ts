@@ -84,16 +84,16 @@ class DevicesClass {
 
         if (Auth.tokenInfo?.scopes[0] === "TENANT_ADMIN") {
             url = UserConstants.THINGSBOARD_HOST
-            + `/api/tenant/devices?pageSize=10&page=0&sortProperty=createdTime&sortOrder=DESC`;
+                + `/api/tenant/devices?pageSize=10&page=0&sortProperty=createdTime&sortOrder=DESC`;
 
-            
+
         } else { // customer user
             url = UserConstants.THINGSBOARD_HOST
-            + `/api/customer/${this._Auth?.tokenInfo?.customerId}/devices?pageSize=10&page=0&sortProperty=createdTime&sortOrder=DESC`;
+                + `/api/customer/${this._Auth?.tokenInfo?.customerId}/devices?pageSize=10&page=0&sortProperty=createdTime&sortOrder=DESC`;
 
         }
 
-      
+
 
         try {
             const res = await axios.get(url, {
@@ -150,7 +150,7 @@ class DevicesClass {
      */
     async timeseriesValues(device: IDevice, startTs: number, endTs: number, keys: string[]): Promise<{ data: ITimeSeriesRes, error?: Error }> {
         const url = UserConstants.THINGSBOARD_HOST
-            + `/api/plugins/telemetry/DEVICE/${device.id.id}/values/timeseries?startTs=${startTs}&endTs=${endTs}&keys=${keys.join(',')}`;
+            + `/api/plugins/telemetry/DEVICE/${device.id.id}/values/timeseries?startTs=${startTs}&endTs=${endTs}&keys=${keys.join(',')}&limit=50000`;
 
         try {
             const res = await axios.get(url, {
@@ -254,6 +254,110 @@ class DevicesClass {
                 return { error: ClientError.NETWORK_CONN };
             }
         }
+    }
+
+    /** Create device by default (creadentialsType as ACCESS_TOKEN) */
+    async createNewDevice(options: {
+        name: string,
+        label: string,
+        credentialsType?: string
+        credentialsId?: string
+        description?: string
+    }):Promise< {
+        device?: IDevice
+        error?: ClientError
+    }> {
+
+        const url = UserConstants.THINGSBOARD_HOST + `/api/device-with-credentials`;
+
+        const randomAccessToken: string = options.credentialsId || crypto.randomUUID();
+
+        const requestBody = {
+            "device": {
+                "name": options.name,
+                "label": options.label,
+                "type": "default",
+                 "additionalInfo": {
+                "description": options.description || "Created by IoT Platform Extension"
+            }
+            },
+            "credentials": {
+                "credentialsType": options.credentialsType || "ACCESS_TOKEN",
+                "credentialsId": randomAccessToken
+            },
+           
+        }
+
+        try {
+            const res = await axios.post(url, requestBody, {
+                headers: {
+                    "X-Authorization": "Bearer " + this._Auth?.state.token
+                }
+
+            });
+
+            if (res.status === 200) {
+                return { device: res.data as IDevice };
+            }
+
+            return { error: ClientError.UNKNOWN };
+        } catch (e) {
+            console.error(e);
+
+            if ((e as AxiosError).response) {
+                const res = (e as AxiosError).response;
+                switch (res?.status) {
+                    case 404: return { error: ClientError.HTTP_NOT_FOUND };
+                    case 400: return { error: ClientError.HTTP_BAD_REQUEST };
+                    default: return { error: ClientError.UNKNOWN };
+                }
+            } else {
+                return { error: ClientError.NETWORK_CONN };
+            }
+        }
+
+    }
+
+    /** Add a new telemetry for a device */
+    async postTelemetry<T>(deviceCredentials: IDeviceCredentials, key: string, value: T): Promise<ClientError> {
+        
+        if (deviceCredentials.credentialsType !== `ACCESS_TOKEN`) {
+            return ClientError.WRONG_TYPE ;
+        }
+
+          const url = UserConstants.THINGSBOARD_HOST + `/api/v1/${deviceCredentials.credentialsId}/telemetry`;
+
+          const requestBody = Object.create({});
+          requestBody[key] = value;
+
+             try {
+            const res = await axios.post(url, requestBody, {
+                headers: {
+                    "X-Authorization": "Bearer " + this._Auth?.state.token
+                }
+
+            });
+
+            if (res.status === 200) {
+                return ClientError.SUCCESS;
+            }
+
+            return ClientError.UNKNOWN ;
+        } catch (e) {
+            console.error(e);
+
+            if ((e as AxiosError).response) {
+                const res = (e as AxiosError).response;
+                switch (res?.status) {
+                    case 404: return  ClientError.HTTP_NOT_FOUND ;
+                    case 400: return  ClientError.HTTP_BAD_REQUEST ;
+                    default: return  ClientError.UNKNOWN ;
+                }
+            } else {
+                return  ClientError.NETWORK_CONN ;
+            }
+        }
+
     }
 }
 
