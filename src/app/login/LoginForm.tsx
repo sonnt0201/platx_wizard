@@ -42,7 +42,15 @@ export const LoginForm = () => {
     }
 
 
-    return <ThemeProvider theme={createTheme(themeConstant)}>
+    const theme = createTheme({
+        ...themeConstant,
+        palette: {
+          ...themeConstant.palette,
+          mode: 'light',
+        },
+      });
+
+    return <ThemeProvider theme={theme}>
         {loading && <LinearProgress color="primary" />}
         {/* <Stack direction={"row"} spacing={2}> */}
         <Paper elevation={3} className="m-auto my-10 py-5 px-10 w-5/12 h-10/12 text-center" >

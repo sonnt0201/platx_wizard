@@ -216,7 +216,15 @@ export const Csv = () => {
         return 0;
     }
 
-    return (<ThemeProvider theme={createTheme(themeConstant)}>
+    const theme = createTheme({
+        ...themeConstant,
+        palette: {
+          ...themeConstant.palette,
+          mode: 'light',
+        },
+      });
+
+    return (<ThemeProvider theme={theme}>
 
 
         <Paper elevation={3} sx={{ padding: 2, margin: 2 }} key={"on-top-tool-box"}   >

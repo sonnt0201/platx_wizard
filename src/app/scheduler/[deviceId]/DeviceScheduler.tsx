@@ -216,6 +216,9 @@ export const DeviceScheduler = ({ deviceId }: { deviceId: string }) => {
         }
 
     }
+
+    
+
     // {END: COMPONENT FUNCTIONS}
 
     // {BEGIN: COMPONENT RENDER}

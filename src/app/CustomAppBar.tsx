@@ -47,8 +47,16 @@ export function CustomAppBar() {
     Auth.logOut()
   }
 
+  const theme = createTheme({
+    ...themeConstant,
+    palette: {
+      ...themeConstant.palette,
+      mode: 'light',
+    },
+  });
+
   return (
-    <ThemeProvider theme={createTheme(themeConstant)}>
+    <ThemeProvider theme={theme}>
       <AppBar position="static" sx={{ bgcolor: `primary` }} >
         <Container maxWidth="xl">
           <Toolbar disableGutters>

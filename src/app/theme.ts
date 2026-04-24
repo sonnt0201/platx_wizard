@@ -1,11 +1,12 @@
 
 import {  deepPurple,  grey  } from "@mui/material/colors";
+import { ThemeOptions } from "@mui/material/styles";
 
 
 
 
 
-export const themeConstant = {
+export const themeConstant: ThemeOptions = {
   palette: {
     mode: "light",
     primary: {
