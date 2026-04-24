@@ -7,6 +7,7 @@ import {  deepPurple,  grey  } from "@mui/material/colors";
 
 export const themeConstant = {
   palette: {
+    mode: "light",
     primary: {
       // main: deepPurple[600],
       // lighter: deepPurple[300],
@@ -17,6 +18,10 @@ export const themeConstant = {
      main: deepPurple[600] 
     },
    
+    background: {
+      default: "#F5F5F5",
+      paper: "#FFFFFF"
+    },
     
     action: {
       hover: grey[100]

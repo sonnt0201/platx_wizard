@@ -6,6 +6,7 @@ import "./globals.css";
 
 import { CustomAppBar } from "./CustomAppBar";
 import { CustomFooter } from "./CustomFooter";
+import { CssBaseline } from "@mui/material";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -36,12 +37,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AppRouterCacheProvider>
-
+          <CssBaseline />
           <CustomAppBar />
 
-            <div style={{ marginBottom: "2rem" }}>
+          <div style={{ marginBottom: "2rem" }}>
             {children}
-            </div>
+          </div>
 
 
 
